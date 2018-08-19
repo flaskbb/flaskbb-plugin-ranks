@@ -1,0 +1,48 @@
+{% set page_title = _("Ranks Overview") %}
+
+{% extends theme("layout.html") %}
+{% block content %}
+
+<div class="page-view">
+    <ol class="breadcrumb flaskbb-breadcrumb">
+        <li><a href="{{ url_for('forum.index') }}">{% trans %}Forum{% endtrans %}</a></li>
+        <li class="active">{{ page_title }}</li>
+    </ol>
+
+
+
+    <div class="panel page-panel">
+        <div class="panel-heading page-head">By Post</div>
+        <div class="panel-body page-body">
+            <div class="page-meta">
+                <div class="col-md-3 col-sm-3 meta-item">Name</div>
+                <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
+                <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
+            </div>
+            {% for rank in ranks["requirement"] %}
+            <div class="row page-row hover clearfix">
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_name }}</div>
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
+                <div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel page-panel">
+        <div class="panel-heading page-head">Custom</div>
+        <div class="panel-body page-body">
+            <div class="page-meta">
+                <div class="col-md-3 col-sm-3 meta-item">Name</div>
+                <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
+            </div>
+            {% for rank in ranks["custom"] %}
+            <div class="row page-row hover clearfix">
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_name }}</div>
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends theme("rank_management_base.html") %}
+{% from theme("macros.html") import horizontal_field %}
+{% block rank_management %}
+                <div class="settings-meta row">
+                    <div class="meta-item">Current View</div>
+                </div>
+                <div>{{ rank.rank_code | nonpost_markup }}</div>
+                <form class="form-horizontal settings-form" role="form" method="post">
+                    {{ form.hidden_tag() }}
+                    {{ horizontal_field(form.rank_name) }}
+                    {{ horizontal_field(form.rank_code, div_class="col-sm-8 editor", rows="5", placeholder="", **{'data-provide': 'markdown', 'class': 'flaskbb-editor'}) }}
+                    {{ horizontal_field(form.requirement) }}
+                    {{ horizontal_field(form.submit) }}
+
+                    {% include theme('editor_help.html') %}
+                </form>
+                </div>
+{% endblock %}

@@ -1,0 +1,3 @@
+-rrequirements-cov.txt
+tox-travis>=0.10,<1
+coveralls>=1.3.0,<2
