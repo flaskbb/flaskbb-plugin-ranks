@@ -22,6 +22,7 @@ exclude_lines =
     if __name__ == .__main__.:
     @abstractmethod
     return NotImplemented
+    association_proxy
 
 fail_under = 80
 precision = 2

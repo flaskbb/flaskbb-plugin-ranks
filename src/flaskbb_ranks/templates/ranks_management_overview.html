@@ -9,7 +9,7 @@
                 <div class="row settings-row hover clearfix">
                     <div class="col-md-3">{{ rank.rank_name }}</div>
                     <div class="col-md-3">{{ rank.rank_code | nonpost_markup }}</div>
-                    {% if rank.requirement is none %}
+                    {% if rank.is_custom() %}
                     <div class="col-md-3">Custom</div>
                     {% else %}
                     <div class="col-md-3">{{ rank.requirement }}</div>

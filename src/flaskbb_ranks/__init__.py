@@ -14,9 +14,8 @@ ranks_impl = HookimplMarker("flaskbb")
 
 
 def render_rank(user):
-    rank = user.rank
-    if rank is not None:
-        return render_template("rank_rank_in_post.html", rank=rank)
+    if Rank.has_rank(user):
+        return render_template("rank_rank_in_post.html", rank=user.rank)
 
 
 @ranks_impl
@@ -59,10 +58,10 @@ def flaskbb_event_post_save_after(post, is_new):
 
     # either guest or custom rank, don't do anything.
     # careful, user might not have one yet
-    if user.is_anonymous or (user.rank is not None and user.rank.requirement is None):
+    if user.is_anonymous or Rank.has_custom_rank(user):
         return
 
-    if user.rank is None:
+    if not Rank.has_rank(user):
         rank = (
             Rank.query.filter(
                 Rank.requirement <= user.post_count, Rank.requirement != None
