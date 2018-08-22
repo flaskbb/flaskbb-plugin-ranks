@@ -2,7 +2,6 @@ import os
 
 from flask import Blueprint
 
-from flaskbb.extensions import db
 from flaskbb.utils.helpers import render_template
 
 from ..models import Rank
