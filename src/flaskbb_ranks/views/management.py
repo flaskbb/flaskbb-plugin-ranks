@@ -38,7 +38,7 @@ class AddRankView(MethodView):
             )
             db.session.add(rank)
             db.session.commit()
-            flash("{} added!".format(rank.rank_name))
+            flash("{} added!".format(rank.rank_name), "success")
             return redirect(url_for("ranks_management.index"))
         return render_template("rank_management_add.html", form=form)
 
