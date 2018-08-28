@@ -37,3 +37,7 @@ class ApplyCustomRankForm(FlaskBBForm):
         _("Username"), validators=[DataRequired("Must enter username")]
     )
     submit = SubmitField("Apply rank")
+
+
+class ResyncForm(FlaskBBForm):
+    submit = SubmitField(_("Resync Ranks"))

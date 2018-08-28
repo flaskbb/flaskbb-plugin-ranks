@@ -1,0 +1,9 @@
+{% extends theme("rank_management_base.html") %}
+{% from theme("macros.html") import horizontal_field %}
+{% block rank_management %}
+                <form class="form-horizontal settings-form" role="form" method="post">
+                    <p>Resync ranks for all users? Will preserve custom ranks</p>
+                    {{ form.hidden_tag() }}
+                    {{ horizontal_field(form.submit) }}
+                </form>
+{% endblock %}

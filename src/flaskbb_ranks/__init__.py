@@ -3,6 +3,7 @@ import os
 from pluggy import HookimplMarker
 
 from flaskbb.extensions import db
+from flaskbb.utils.forms import SettingValueType
 from flaskbb.utils.helpers import render_template
 
 from . import models, views
@@ -92,3 +93,70 @@ def flaskbb_event_post_save_after(post, is_new):
 @ranks_impl
 def flaskbb_tpl_admin_settings_menu(user):
     return [("ranks_management.index", "Ranks", "fa fa-id-badge")]
+
+
+SETTINGS = {
+    "hide_unapplied_ranks": {
+        "value": False,
+        "value_type": SettingValueType.boolean,
+        "name": "Hide Unapplied Ranks",
+        "description": "Hides ranks with no users attached in the forum overview. Replaces displays with placeholders.",
+        "extra": {},
+    },
+    "rank_name_placeholder": {
+        "value": "???",
+        "value_type": SettingValueType.string,
+        "name": "Rank Name Placehold",
+        "description": "Placeholder when a rank name is hidden in the forum overview.",
+        "extra": {},
+    },
+    "rank_code_placeholder": {
+        "value": "???",
+        "value_type": SettingValueType.string,
+        "name": "Rank Display Placeholder",
+        "description": "Placeholder when a rank display is hidden in the forum overview. May be markdown.",
+        "extra": {},
+    },
+    "rank_requirement_placeholder": {
+        "value": "???",
+        "value_type": SettingValueType.string,
+        "name": "Rank Requirement Placehold",
+        "description": "Placeholder when a rank requirement is hidden in the forum overview. Set to blank to show requirement.",
+        "extra": {},
+    },
+    "hide_unapplied_custom_ranks": {
+        "value": True,
+        "value_type": SettingValueType.boolean,
+        "name": "Hide Unapplied Custom Ranks",
+        "description": "Hides custom ranks with no users attached in the forum overview. Replaces displays with placeholders.",
+        "extra": {},
+    },
+    "rank_custom_name_placeholder": {
+        "value": "???",
+        "value_type": SettingValueType.string,
+        "name": "Rank Name Placehold",
+        "description": "Placeholder when a custom rank name is hidden in the forum overview. If not set, will use the regular name placeholder.",
+        "extra": {},
+    },
+    "rank_custom_code_placeholder": {
+        "value": "???",
+        "value_type": SettingValueType.string,
+        "name": "Custom Rank Display Placeholder",
+        "description": "Placeholder when a custom rank display is hidden in the forum overview. May be markdown. If not set, will use the regular display placeholder.",
+        "extra": {},
+    },
+    "show_users_for_ranks": {
+        "value": True,
+        "value_type": SettingValueType.boolean,
+        "name": "Show users with rank in forum overview",
+        "description": "",
+        "extra": {},
+    },
+    "how_many_users": {
+        "value": 5,
+        "value_type": SettingValueType.integer,
+        "name": "How many users to show",
+        "description": "If showing users on the forum overview, how many users to show.",
+        "extra": {},
+    },
+}

@@ -20,6 +20,7 @@
 
             {% if current_user|is_admin %}
             {{ navlink('ranks_management.add_rank', _("Add Rank")) }}
+            {{ navlink('ranks_management.resync_ranks', _("Resync Ranks")) }}
             {% endif %}
         </ul>
     </div>

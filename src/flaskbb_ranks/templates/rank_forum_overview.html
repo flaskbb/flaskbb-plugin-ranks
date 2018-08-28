@@ -18,12 +18,30 @@
                 <div class="col-md-3 col-sm-3 meta-item">Name</div>
                 <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
                 <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
+                {% if rank_settings["show_users"] %}
+                <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
+                {% endif %}
             </div>
             {% for rank in ranks["requirement"] %}
             <div class="row page-row hover clearfix">
+                {% if rank_settings["hide"] and not rank.users %}
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["name"] }}</div>
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["code"] | nonpost_markup }}</div>
+                <div class="col-md-2 col-sm-2 hidden-xs">{{ rank_settings["requirement"] or rank.requirement }}</div>
+                {% else %}
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_name }}</div>
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
                 <div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
+                <div class="col-md-2 col-sm-2 hidden-xs">
+                    {% if rank_settings["show_users"] and rank.users | length %}
+                    <ul>
+                        {% for user in rank.users[:rank_settings["how_many_users"]] %}
+                        <li>{{user.username}}
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -35,11 +53,28 @@
             <div class="page-meta">
                 <div class="col-md-3 col-sm-3 meta-item">Name</div>
                 <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
+                {% if rank_settings["show_users"] %}
+                <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
+                {% endif %}
             </div>
             {% for rank in ranks["custom"] %}
             <div class="row page-row hover clearfix">
+                {% if rank_settings["hide_custom"] and not rank.users %}
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["name"] }}</div>
+                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["custom_code"] | nonpost_markup }}</div>
+                {% else %}
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_name }}</div>
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
+                <div class="col-md-2 col-sm-2 hidden-xs">
+                    {% if rank_settings["show_users"] and rank.users | length %}
+                    <ul>
+                        {% for user in rank.users[:rank_settings["how_many_users"]] %}
+                        <li>{{user.username}}
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
