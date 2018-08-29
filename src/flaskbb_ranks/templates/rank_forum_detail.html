@@ -1,0 +1,19 @@
+{% set page_title = _("Rank Detail") %}
+{% extends theme("layout.html") %}
+{% block content %}
+
+<div class="page-view">
+    <ol class="breadcrumb flaskbb-breadcrumb">
+        <li><a href="{{ url_for('forum.index') }}">{% trans %}Forum{% endtrans %}</a></li>
+        <li><a href="{{ url_for('ranks.index') }}">{% trans %}Ranks Overview{% endtrans %}</a></li>
+        <li class="active">{{ page_title }}</li>
+    </ol>
+
+    <div class="panel page-panel">
+        <div class="panel-heading page-head">{{ rank.rank_name }} Details</div>
+        <div class="panel-body page-body">
+            {{ rank.rank_code | nonpost_markup }}
+        </div>
+    </div>
+</div>
+{% endblock content %}

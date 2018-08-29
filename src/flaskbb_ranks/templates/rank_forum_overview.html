@@ -9,8 +9,6 @@
         <li class="active">{{ page_title }}</li>
     </ol>
 
-
-
     <div class="panel page-panel">
         <div class="panel-heading page-head">By Post</div>
         <div class="panel-body page-body">
@@ -29,7 +27,9 @@
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["code"] | nonpost_markup }}</div>
                 <div class="col-md-2 col-sm-2 hidden-xs">{{ rank_settings["requirement"] or rank.requirement }}</div>
                 {% else %}
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_name }}</div>
+                <div class="col-md-3 col-sm-3 col-xs-5">
+                    <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
+                </div>
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
                 <div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
                 <div class="col-md-2 col-sm-2 hidden-xs">
@@ -63,7 +63,10 @@
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["name"] }}</div>
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["custom_code"] | nonpost_markup }}</div>
                 {% else %}
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_name }}</div>
+                <div class="col-md-3 col-sm-3 col-xs-5">
+                    <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-5"></div>
                 <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
                 <div class="col-md-2 col-sm-2 hidden-xs">
                     {% if rank_settings["show_users"] and rank.users | length %}

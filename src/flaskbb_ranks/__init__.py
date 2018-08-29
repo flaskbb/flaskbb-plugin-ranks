@@ -159,4 +159,11 @@ SETTINGS = {
         "description": "If showing users on the forum overview, how many users to show.",
         "extra": {},
     },
+    "hide_from_guests": {
+        "value": True,
+        "value_type": SettingValueType.boolean,
+        "name": "Hide rank overview from guests",
+        "description": "Hides rank list and rank details from guests",
+        "extra": {},
+    },
 }
