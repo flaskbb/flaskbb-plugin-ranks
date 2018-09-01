@@ -32,19 +32,23 @@
 <div class="col-md-2 col-sm-2 hidden-xs">{# users #}</div>
 {% endmacro %}
 
-{% macro render_actual_rank_row(rank, how_many_users=None) %}
+{% macro render_actual_rank_row(rank, how_many_users=None, force_req=False) %}
 <div class="col-md-3 col-sm-3 col-xs-5">{{ render_rank(rank) }}</div>
 <div class="col-md-3 col-sm-3 col-xs-5">
     <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
 </div>
-{% if rank.requirement is not none %}
+{% if force_req or rank.requirement is not none %}
+{% if rank.requirement is none %}
+<div class="col-md-2 col-sm-2 hidden-xs">Custom</div>
+{% else %}
 <div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
 {% endif %}
-<div class="col-md-2 col-sm-2 hidden-xs">
-    {% if how_many_users != 0 and rank.users | length %}
-    {{ render_rank_users(rank, how_many_users) }}
-    {% endif %}
+{% endif %}
+{% if how_many_users != 0 and rank.users | length %}
+<div class="col-md-2 col-sm-2 hidden-xs users">
+{{ render_rank_users(rank, how_many_users) }}
 </div>
+{% endif %}
 {% endmacro %}
 
 
@@ -71,4 +75,35 @@
         {% endfor %}
     </div>
 </div>
+{% endmacro %}
+
+
+{% macro render_rank_admin_row(rank, user) %}
+
+{{ render_actual_rank_row(rank, 0, True) }}
+{% if current_user|is_admin %}
+<div class="col-md-1"><a href="{{ url_for("ranks_management.edit_rank", id=rank.id) }}">Edit</a></div>
+<div class="col-md-1"><a href="{{ url_for("ranks_management.delete_rank", id=rank.id) }}">Delete</a></div>
+    {% if rank.requirement is none %}
+<div class="col-md-1"><a href="{{ url_for("ranks_management.apply_rank", id=rank.id) }}">Apply</a></div>
+    {% endif %}
+{% endif %}
+{% endmacro %}
+
+
+{% macro render_admin_rank_block(ranks, user) %}
+<div class="settings-meta row">
+    <div class="col-md-3 meta-item">{% trans %}Name{% endtrans %}</div>
+    <div class="col-md-3 meta-item">{% trans %}Display{% endtrans %}</div>
+    <div class="col-md-3 meta-item">{% trans %}Requirement{% endtrans %}</div>
+    {% if user | is_admin %}
+    <div class="col-md-3 col-sm-3 meta-item">Actions</div>
+    {% endif %}
+</div>
+
+{% for rank in ranks %}
+<div class="row settings-row hover clearfix">
+    {{ render_rank_admin_row(rank, user) }}
+</div>
+{% endfor %}
 {% endmacro %}

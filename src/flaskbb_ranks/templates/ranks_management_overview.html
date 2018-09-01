@@ -1,30 +1,5 @@
+{% from theme("rank_macros.html") import render_admin_rank_block %}
 {% extends theme("rank_management_base.html") %}
 {% block rank_management %}
-                <div class="settings-meta row">
-                    <div class="col-md-3 meta-item">{% trans %}Name{% endtrans %}</div>
-                    <div class="col-md-3 meta-item">{% trans %}Display{% endtrans %}</div>
-                    <div class="col-md-3 meta-item">{% trans %}Requirement{% endtrans %}</div>
-                </div>
-            {% for rank in ranks %}
-                <div class="row settings-row hover clearfix">
-                    <div class="col-md-3">{{ rank.rank_name }}</div>
-                    <div class="col-md-3">{{ rank.rank_code | nonpost_markup }}</div>
-                    {% if rank.is_custom() %}
-                    <div class="col-md-3">Custom</div>
-                    {% else %}
-                    <div class="col-md-3">{{ rank.requirement }}</div>
-                    {% endif %}
-                    {% if current_user|is_admin %}
-                    <div class="col-md-1"><a href="{{ url_for("ranks_management.edit_rank", id=rank.id) }}">Edit</a></div>
-                    <div class="col-md-1"><a href="{{ url_for("ranks_management.delete_rank", id=rank.id) }}">Delete</a></div>
-                    {% if rank.requirement is none %}
-                    <div class="col-md-1"><a href="{{ url_for("ranks_management.apply_rank", id=rank.id) }}">Apply</a></div>
-                    {% endif %}
-                    {% endif %}
-                </div>
-            {% else %}
-                <div class="row settings-row clearfix">
-                    <div class="col-md-12 col-sm-12 col-xs-12">No ranks</div>
-                </div>
-            {% endfor %}
+{{ render_admin_rank_block(ranks, current_user) }}
 {% endblock %}
