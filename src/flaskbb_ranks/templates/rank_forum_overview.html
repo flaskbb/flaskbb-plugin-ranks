@@ -1,5 +1,5 @@
 {% set page_title = _("Ranks Overview") %}
-
+{% from theme("rank_macros.html") import render_rank, render_rank_users, render_placeholder_rank_row, render_actual_rank_row, render_rank_block %}
 {% extends theme("layout.html") %}
 {% block content %}
 
@@ -9,78 +9,32 @@
         <li class="active">{{ page_title }}</li>
     </ol>
 
-    <div class="panel page-panel">
-        <div class="panel-heading page-head">By Post</div>
-        <div class="panel-body page-body">
-            <div class="page-meta">
-                <div class="col-md-3 col-sm-3 meta-item">Name</div>
-                <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
-                <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
-                {% if rank_settings["show_users"] %}
-                <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
-                {% endif %}
-            </div>
-            {% for rank in ranks["requirement"] %}
-            <div class="row page-row hover clearfix">
-                {% if rank_settings["hide"] and not rank.users %}
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["name"] }}</div>
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["code"] | nonpost_markup }}</div>
-                <div class="col-md-2 col-sm-2 hidden-xs">{{ rank_settings["requirement"] or rank.requirement }}</div>
-                {% else %}
-                <div class="col-md-3 col-sm-3 col-xs-5">
-                    <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
-                </div>
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
-                <div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
-                <div class="col-md-2 col-sm-2 hidden-xs">
-                    {% if rank_settings["show_users"] and rank.users | length %}
-                    <ul>
-                        {% for user in rank.users[:rank_settings["how_many_users"]] %}
-                        <li>{{user.username}}
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+    {{ render_rank_block(
+            _("By Post"),
+            ranks["requirement"],
+            {
+                "hide": rank_settings["hide"],
+                "name": rank_settings["name"],
+                "code": rank_settings["code"],
+                "show_requirements": True,
+                "show_users": rank_settings["show_users"],
+                "how_many_users": rank_settings["how_many_users"]
+            }
+        )
+    }}
+    {{ render_rank_block(
+            _("Custom"),
+            ranks["custom"],
+            {
+                "hide": rank_settings["hide_custom"],
+                "name": rank_settings["name"],
+                "code": rank_settings["custom_code"],
+                "show_requirements": False,
+                "show_users": rank_settings["show_users"],
+                "how_many_users": rank_settings["how_many_users"]
+            }
+        )
+    }}
 
-    <div class="panel page-panel">
-        <div class="panel-heading page-head">Custom</div>
-        <div class="panel-body page-body">
-            <div class="page-meta">
-                <div class="col-md-3 col-sm-3 meta-item">Name</div>
-                <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
-                {% if rank_settings["show_users"] %}
-                <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
-                {% endif %}
-            </div>
-            {% for rank in ranks["custom"] %}
-            <div class="row page-row hover clearfix">
-                {% if rank_settings["hide_custom"] and not rank.users %}
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["name"] }}</div>
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank_settings["custom_code"] | nonpost_markup }}</div>
-                {% else %}
-                <div class="col-md-3 col-sm-3 col-xs-5">
-                    <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
-                </div>
-                <div class="col-md-3 col-sm-3 col-xs-5"></div>
-                <div class="col-md-3 col-sm-3 col-xs-5">{{ rank.rank_code | nonpost_markup }}</div>
-                <div class="col-md-2 col-sm-2 hidden-xs">
-                    {% if rank_settings["show_users"] and rank.users | length %}
-                    <ul>
-                        {% for user in rank.users[:rank_settings["how_many_users"]] %}
-                        <li>{{user.username}}
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
 </div>
 {% endblock %}

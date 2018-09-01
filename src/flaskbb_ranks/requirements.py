@@ -8,9 +8,7 @@ class CanViewRankOverview(Requirement):
         self._settings = settings
 
     def fulfill(self, user):
-        if user.is_authenticated:
-            return True
-        return not self._settings.get("hide_from_guests")
+        return user.is_authenticated or not self._settings.get("hide_from_guests")
 
 
 class UserCanViewRankDetails(Requirement):

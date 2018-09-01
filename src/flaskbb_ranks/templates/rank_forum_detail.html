@@ -1,5 +1,28 @@
 {% set page_title = _("Rank Detail") %}
+{% from theme("rank_macros.html") import render_rank_block %}
 {% extends theme("layout.html") %}
+
+{% if rank.is_custom() %}
+    {% set settings = {
+        "hide": rank_settings["hide_custom"],
+        "name": rank_settings["name"],
+        "code": rank_settings["custom_code"],
+        "show_requirements": False,
+        "show_users": rank_settings["show_users"],
+        "how_many_users": None
+    } %}
+{% else %}
+    {% set settings = {
+        "hide": rank_settings["hide"],
+        "name": rank_settings["name"],
+        "code": rank_settings["code"],
+        "show_requirements": True,
+        "show_users": rank_settings["show_users"],
+        "how_many_users": None
+        }
+    %}
+{% endif %}
+
 {% block content %}
 
 <div class="page-view">
@@ -8,12 +31,6 @@
         <li><a href="{{ url_for('ranks.index') }}">{% trans %}Ranks Overview{% endtrans %}</a></li>
         <li class="active">{{ page_title }}</li>
     </ol>
-
-    <div class="panel page-panel">
-        <div class="panel-heading page-head">{{ rank.rank_name }} Details</div>
-        <div class="panel-body page-body">
-            {{ rank.rank_code | nonpost_markup }}
-        </div>
-    </div>
+   {{ render_rank_block(_("%(name)s Details", name=rank.rank_name), [rank], settings) }}
 </div>
 {% endblock content %}

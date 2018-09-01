@@ -28,4 +28,4 @@ def index():
 @ranks.route("/<int:rank_id>")
 def rank_detail(rank_id):
     rank = Rank.query.get_or_404(rank_id)
-    return render_template("rank_forum_detail.html", rank=rank)
+    return render_template("rank_forum_detail.html", rank=rank, rank_settings=rank_settings)

@@ -1,3 +1,2 @@
-<div class="rank{% if rank.rank_name %} {{ rank.rank_name|replace(" ", "-") }}{% endif %}">
-    {{ rank.rank_code | nonpost_markup }}
-</div>
+{% from theme("rank_macros.html") import render_rank %}
+{{ render_rank(rank) }}

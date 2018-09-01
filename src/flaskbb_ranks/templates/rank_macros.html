@@ -1,0 +1,74 @@
+{% macro render_rank(rank) %}
+{{ render_rank_code(rank.rank_code, rank_name) }}
+{% endmacro %}
+
+
+{% macro render_rank_code(rank_code, rank_name=None) %}
+<div class="rank{% if rank_name %} {{ rank_name|replace(" ", "-") }}{% endif %}">
+    {{ rank_code | nonpost_markup }}
+</div>
+{% endmacro %}
+
+{% macro render_rank_users(rank, how_many=None) %}
+    <ul class="rank-users list-inline">
+        {% if how_many is none %}
+        {% for user in rank.users %}
+        <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+        {% endfor %}
+        {% else %}
+        {% for user in rank.users[:how_many] %}
+        <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+{% endmacro %}
+
+{% macro render_placeholder_rank_row(name, code, requirement) %}
+<div class="col-md-3 col-sm-3 col-xs-5">{{ render_rank_code(code) }}</div>
+<div class="col-md-3 col-sm-3 col-xs-5">{{ name }}</div>
+{% if requirement is not none %}
+<div class="col-md-2 col-sm-2 hidden-xs">{{ requirement}}</div>
+{% endif %}
+<div class="col-md-2 col-sm-2 hidden-xs">{# users #}</div>
+{% endmacro %}
+
+{% macro render_actual_rank_row(rank, how_many_users=None) %}
+<div class="col-md-3 col-sm-3 col-xs-5">{{ render_rank(rank) }}</div>
+<div class="col-md-3 col-sm-3 col-xs-5">
+    <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
+</div>
+{% if rank.requirement is not none %}
+<div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
+{% endif %}
+<div class="col-md-2 col-sm-2 hidden-xs">
+    {% if how_many_users != 0 and rank.users | length %}
+    {{ render_rank_users(rank, how_many_users) }}
+    {% endif %}
+</div>
+{% endmacro %}
+
+
+{% macro render_rank_block(title, ranks, settings) %}
+<div class="panel page-panel">
+    <div class="panel-heading page-head">{{ title }}</div>
+    <div class="panel-body page-body">
+        <div class="page-meta">
+            <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
+            <div class="col-md-3 col-sm-3 meta-item">Name</div>
+            {% if settings["show_requirements"] %}
+            <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
+            {% endif %}
+            <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
+        </div>
+        {% for rank in ranks %}
+        <div class="row page-row hover clearfix">
+            {% if settings["hide"] and not rank.users %}
+            {{ render_placeholder_rank_row(settings["name"], settings["code"], None) }}
+            {% else %}
+            {{ render_actual_rank_row(rank, settings["how_many_users"] if settings["show_users"] else 0) }}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
