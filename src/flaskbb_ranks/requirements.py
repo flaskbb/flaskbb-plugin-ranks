@@ -20,7 +20,7 @@ class UserCanViewRankDetails(Requirement):
         if len(self._rank.users):
             return True
 
-        if rank.is_custom():
+        if self._rank.is_custom():
             return not self._settings.get("hide_custom")
 
         return not self._settings.get("hide")

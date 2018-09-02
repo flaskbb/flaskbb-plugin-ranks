@@ -18,7 +18,7 @@ def _get_rank_settings():
         "code": plugin.settings.get("rank_code_placeholder", "???"),
         "show_users": plugin.settings.get("show_users_for_ranks", True),
         "how_many_users": plugin.settings.get("how_many_users", 5),
-        "hide_from_guests": plugin.settings.get("hide_from_guests", True)
+        "hide_from_guests": plugin.settings.get("hide_from_guests", True),
     }
 
     rank_settings["custom_name"] = plugin.settings.get(

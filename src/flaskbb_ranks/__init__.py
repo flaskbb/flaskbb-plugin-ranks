@@ -100,7 +100,7 @@ SETTINGS = {
         "value": False,
         "value_type": SettingValueType.boolean,
         "name": "Hide Unapplied Ranks",
-        "description": "Hides ranks with no users attached in the forum overview. Replaces displays with placeholders.",
+        "description": "Hides ranks with no users attached in the forum overview. Replaces displays with placeholders.",  # noqa
         "extra": {},
     },
     "rank_name_placeholder": {
@@ -114,35 +114,35 @@ SETTINGS = {
         "value": "???",
         "value_type": SettingValueType.string,
         "name": "Rank Display Placeholder",
-        "description": "Placeholder when a rank display is hidden in the forum overview. May be markdown.",
+        "description": "Placeholder when a rank display is hidden in the forum overview. May be markdown.",  # noqa
         "extra": {},
     },
     "rank_requirement_placeholder": {
         "value": "???",
         "value_type": SettingValueType.string,
         "name": "Rank Requirement Placehold",
-        "description": "Placeholder when a rank requirement is hidden in the forum overview. Set to blank to show requirement.",
+        "description": "Placeholder when a rank requirement is hidden in the forum overview. Set to blank to show requirement.",  # noqa
         "extra": {},
     },
     "hide_unapplied_custom_ranks": {
         "value": True,
         "value_type": SettingValueType.boolean,
         "name": "Hide Unapplied Custom Ranks",
-        "description": "Hides custom ranks with no users attached in the forum overview. Replaces displays with placeholders.",
+        "description": "Hides custom ranks with no users attached in the forum overview. Replaces displays with placeholders.",  # noqa
         "extra": {},
     },
     "rank_custom_name_placeholder": {
         "value": "???",
         "value_type": SettingValueType.string,
         "name": "Rank Name Placehold",
-        "description": "Placeholder when a custom rank name is hidden in the forum overview. If not set, will use the regular name placeholder.",
+        "description": "Placeholder when a custom rank name is hidden in the forum overview. If not set, will use the regular name placeholder.",  # noqa
         "extra": {},
     },
     "rank_custom_code_placeholder": {
         "value": "???",
         "value_type": SettingValueType.string,
         "name": "Custom Rank Display Placeholder",
-        "description": "Placeholder when a custom rank display is hidden in the forum overview. May be markdown. If not set, will use the regular display placeholder.",
+        "description": "Placeholder when a custom rank display is hidden in the forum overview. May be markdown. If not set, will use the regular display placeholder.",  # noqa
         "extra": {},
     },
     "show_users_for_ranks": {

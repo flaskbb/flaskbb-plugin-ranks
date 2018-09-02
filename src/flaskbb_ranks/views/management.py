@@ -7,13 +7,7 @@ from flaskbb.extensions import db
 from flaskbb.user.models import User
 from flaskbb.utils.helpers import register_view, render_template
 
-from ..forms import (
-    AddRankForm,
-    ApplyCustomRankForm,
-    DeleteRankForm,
-    EditRankForm,
-    ResyncForm,
-)
+from ..forms import AddRankForm, ApplyCustomRankForm, DeleteRankForm, EditRankForm
 from ..models import Rank
 
 templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
