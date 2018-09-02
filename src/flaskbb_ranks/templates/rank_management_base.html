@@ -1,5 +1,4 @@
 {% set page_title = _("Ranks") %}
-
 {% extends theme("management/management_layout.html") %}
 {% from theme('macros.html') import navlink with context %}
 
@@ -17,13 +16,12 @@
     <div class="nav-sidebar">
         <ul class="nav">
             {{ navlink('ranks_management.index', _('Manage Ranks')) }}
-
             {% if current_user|is_admin %}
             {{ navlink('ranks_management.add_rank', _("Add Rank")) }}
             {% endif %}
         </ul>
     </div>
-</div><!--/.col-md-3 -->
+</div>
 
 <div class="col-md-9 settings-col with-left-border">
     <div class="panel settings-panel">
@@ -31,12 +29,10 @@
             <span class="fa fa-id-badge"></span> {% trans %}Ranks{% endtrans %}
         </div>
         <div class="panel-body settings-body">
-
             <div class="settings-content">
                 {% block rank_management %}{% endblock %}
-            </div> <!-- end settings content -->
+            </div>
         </div>
     </div>
 </div>
-{% include theme('confirm_dialog.html') %}
 {% endblock %}

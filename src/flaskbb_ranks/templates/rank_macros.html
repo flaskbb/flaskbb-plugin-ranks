@@ -39,7 +39,7 @@
 </div>
 {% if force_req or rank.requirement is not none %}
 {% if rank.requirement is none %}
-<div class="col-md-2 col-sm-2 hidden-xs">Custom</div>
+<div class="col-md-2 col-sm-2 hidden-xs">{% trans %}Custom{% endtrans %}</div>
 {% else %}
 <div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
 {% endif %}
@@ -57,12 +57,12 @@
     <div class="panel-heading page-head">{{ title }}</div>
     <div class="panel-body page-body">
         <div class="page-meta">
-            <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Rank</div>
-            <div class="col-md-3 col-sm-3 meta-item">Name</div>
+            <div class="col-md-3 col-sm-3 col-xs-5 meta-item">{% trans %}Display{% endtrans %}</div>
+            <div class="col-md-3 col-sm-3 meta-item">{% trans %}Name{% endtrans %}</div>
             {% if settings["show_requirements"] %}
-            <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
+            <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Requirement{% endtrans %}</div>
             {% endif %}
-            <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
+            <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Users{% endtrans %}</div>
         </div>
         {% for rank in ranks %}
         <div class="row page-row hover clearfix">
@@ -82,10 +82,10 @@
 
 {{ render_actual_rank_row(rank, 0, True) }}
 {% if current_user|is_admin %}
-<div class="col-md-1"><a href="{{ url_for("ranks_management.edit_rank", id=rank.id) }}">Edit</a></div>
-<div class="col-md-1"><a href="{{ url_for("ranks_management.delete_rank", id=rank.id) }}">Delete</a></div>
+<div class="col-md-1"><a href="{{ url_for("ranks_management.edit_rank", id=rank.id) }}">{% trans %}Edit{% endtrans %}</a></div>
+<div class="col-md-1"><a href="{{ url_for("ranks_management.delete_rank", id=rank.id) }}">{% trans %}Delete{% endtrans %}</a></div>
     {% if rank.requirement is none %}
-<div class="col-md-1"><a href="{{ url_for("ranks_management.apply_rank", id=rank.id) }}">Apply</a></div>
+<div class="col-md-1"><a href="{{ url_for("ranks_management.apply_rank", id=rank.id) }}">{% trans %}Apply{% endtrans %}</a></div>
     {% endif %}
 {% endif %}
 {% endmacro %}
@@ -97,7 +97,7 @@
     <div class="col-md-3 meta-item">{% trans %}Name{% endtrans %}</div>
     <div class="col-md-3 meta-item">{% trans %}Requirement{% endtrans %}</div>
     {% if user | is_admin %}
-    <div class="col-md-3 col-sm-3 meta-item">Actions</div>
+    <div class="col-md-3 col-sm-3 meta-item">{% trans %}Actions{% endtrans %}</div>
     {% endif %}
 </div>
 
@@ -110,10 +110,10 @@
 
 {% macro render_single_rank_block(rank) %}
 <div class="settings-meta row">
-    <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Display</div>
-    <div class="col-md-3 col-sm-3 meta-item">Name</div>
-    <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
-    <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
+    <div class="col-md-3 col-sm-3 col-xs-5 meta-item">{% trans %}Display{% endtrans %}</div>
+    <div class="col-md-3 col-sm-3 meta-item">{% trans %}Name{% endtrans %}</div>
+    <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Requirement{% endtrans %}</div>
+    <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Users{% endtrans %}</div>
 </div>
 <div class="row settings-row clearfix">
     {{ render_actual_rank_row(rank, force_req=True) }}

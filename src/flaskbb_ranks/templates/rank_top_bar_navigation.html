@@ -1,3 +1,3 @@
 <li{% if 'ranks.index' == request.endpoint %} class="active"{% endif %}>
-    <a href="{{ url_for('ranks.index') }}"><i class="fa fa-id-badge"></i> Ranks</a>
+    <a href="{{ url_for('ranks.index') }}"><i class="fa fa-id-badge"></i> {% trans %}Ranks{% endtrans %}</a>
 </li>
