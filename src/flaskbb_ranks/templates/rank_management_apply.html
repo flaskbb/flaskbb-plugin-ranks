@@ -1,10 +1,8 @@
 {% extends theme("rank_management_base.html") %}
 {% from theme("macros.html") import horizontal_field %}
+{% from theme("rank_macros.html") import render_single_rank_block %}
 {% block rank_management %}
-                <div class="settings-meta row">
-                    <div class="meta-item">Current View: {{ rank.rank_name }}</div>
-                </div>
-                <div>{{ rank.rank_code | nonpost_markup }}</div>
+                {{ render_single_rank_block(rank) }}
                 <form class="form-horizontal settings-form" role="form" method="post">
                     {{ form.hidden_tag() }}
                     {{ horizontal_field(form.username) }}

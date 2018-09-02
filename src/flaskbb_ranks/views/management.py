@@ -109,19 +109,6 @@ class ApplyCustomRank(MethodView):
         return render_template("ranks_management_apply.html", form=form, rank=rank)
 
 
-class ResyncRanks(MethodView):
-    def get(self):
-        form = ResyncForm()
-        return render_template("rank_management_resync.html", form=form)
-
-    def post(self):
-        form = ResyncForm()
-        if form.validate_on_submit():
-            flash("Resyncing ranks.", "success")
-
-        return redirect(url_for("ranks_management.resync_ranks"))
-
-
 register_view(
     ranks_management,
     routes=["/delete/<id>"],
@@ -137,7 +124,4 @@ register_view(
     ranks_management,
     routes=["/apply/<id>"],
     view_func=ApplyCustomRank.as_view("apply_rank"),
-)
-register_view(
-    ranks_management, routes=["/resync"], view_func=ResyncRanks.as_view("resync_ranks")
 )

@@ -4,7 +4,7 @@
 
 
 {% macro render_rank_code(rank_code, rank_name=None) %}
-<div class="rank{% if rank_name %} {{ rank_name|replace(" ", "-") }}{% endif %}">
+<div class="rank{% if rank_name %} {{ rank_name|replace(" ", "-") }}{% endif %}" style="text-align: center; margin: 10px 0;">
     {{ rank_code | nonpost_markup }}
 </div>
 {% endmacro %}
@@ -93,8 +93,8 @@
 
 {% macro render_admin_rank_block(ranks, user) %}
 <div class="settings-meta row">
-    <div class="col-md-3 meta-item">{% trans %}Name{% endtrans %}</div>
     <div class="col-md-3 meta-item">{% trans %}Display{% endtrans %}</div>
+    <div class="col-md-3 meta-item">{% trans %}Name{% endtrans %}</div>
     <div class="col-md-3 meta-item">{% trans %}Requirement{% endtrans %}</div>
     {% if user | is_admin %}
     <div class="col-md-3 col-sm-3 meta-item">Actions</div>
@@ -106,4 +106,16 @@
     {{ render_rank_admin_row(rank, user) }}
 </div>
 {% endfor %}
+{% endmacro %}
+
+{% macro render_single_rank_block(rank) %}
+<div class="settings-meta row">
+    <div class="col-md-3 col-sm-3 col-xs-5 meta-item">Display</div>
+    <div class="col-md-3 col-sm-3 meta-item">Name</div>
+    <div class="col-md-2 col-sm-2 hidden-xs meta-item">Requirement</div>
+    <div class="col-md-2 col-sm-2 hidden-xs meta-item">Users</div>
+</div>
+<div class="row settings-row clearfix">
+    {{ render_actual_rank_row(rank, force_req=True) }}
+</div>
 {% endmacro %}
