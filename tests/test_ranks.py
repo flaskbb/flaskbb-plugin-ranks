@@ -1,8 +1,9 @@
 from flaskbb.user.models import Guest, User
+
 from flaskbb_ranks.models import Rank, UserRank
 
 
-class TestRank(object):
+class TestRank:
     def test_is_custom_returns_false_with_requirement_set(self):
         assert not Rank(requirement=1).is_custom()
 
@@ -22,9 +23,7 @@ class TestRank(object):
         assert not Rank.has_custom_rank(User())
 
     def test_has_custom_rank_returns_true_if_user_rank_is_custom(self):
-        assert Rank.has_custom_rank(
-            User(user_rank=UserRank(rank=Rank(requirement=None)))
-        )
+        assert Rank.has_custom_rank(User(user_rank=UserRank(rank=Rank(requirement=None))))
 
     def test_partition_ranks_properly_divides_up_ranks(self):
         custom = Rank(requirement=None)
@@ -36,7 +35,7 @@ class TestRank(object):
         assert paritioned["requirement"][0] is requirement
 
 
-class TestUserRank(object):
+class TestUserRank:
     def test_is_custom_returns_false_if_rank_isnt_custom(self):
         assert not UserRank(rank=Rank(requirement=1)).is_custom()
 

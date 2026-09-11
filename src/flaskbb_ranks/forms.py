@@ -1,39 +1,24 @@
-from flask_babelplus import gettext as _
-from wtforms import HiddenField, IntegerField, StringField, SubmitField, TextAreaField
+from flask_babelplus import lazy_gettext as _
+from flaskbb.utils.forms import FlaskBBForm
+from wtforms import IntegerField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Optional
 
-from flaskbb.utils.forms import FlaskBBForm
 
-
-class BaseRankForm(FlaskBBForm):
-    rank_name = StringField(
-        "Rank Name", validators=[DataRequired("Must enter rank name")]
-    )
-    rank_code = TextAreaField(
-        "Rank Code", validators=[DataRequired("Must enter rank code")]
-    )
+class RankForm(FlaskBBForm):
+    rank_name = StringField(_("Rank Name"), validators=[DataRequired(_("Must enter rank name"))])
+    rank_code = TextAreaField(_("Rank Code"), validators=[DataRequired(_("Must enter rank code"))])
     requirement = IntegerField(
-        "Post Requirement", validators=[Optional(strip_whitespace=True)]
+        _("Post Requirement"),
+        description=_("Leave empty for a custom rank that is handed out manually."),
+        validators=[Optional(strip_whitespace=True)],
     )
-
-
-class AddRankForm(BaseRankForm):
-    submit = SubmitField("Add Rank")
-
-
-class EditRankForm(BaseRankForm):
-    id = HiddenField()
-    submit = SubmitField("Edit Rank")
+    submit = SubmitField(_("Save"))
 
 
 class DeleteRankForm(FlaskBBForm):
-    id = HiddenField()
-    submit = SubmitField("Delete Rank")
+    pass
 
 
 class ApplyCustomRankForm(FlaskBBForm):
-    id = HiddenField()
-    username = StringField(
-        _("Username"), validators=[DataRequired("Must enter username")]
-    )
-    submit = SubmitField("Apply rank")
+    username = StringField(_("Username"), validators=[DataRequired(_("Must enter username"))])
+    submit = SubmitField(_("Apply rank"))

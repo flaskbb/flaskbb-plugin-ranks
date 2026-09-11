@@ -1,22 +1,23 @@
 import os
 
+from flask import Flask
+from flask_allows2 import Permission
+from flask_babelplus import gettext as _
+from flask_login import current_user
+from flaskbb.display.navigation import NavigationLink
+from flaskbb.extensions import db
+from flaskbb.forum.models import Post
+from flaskbb.user.models import Guest, User
+from flaskbb.utils.helpers import real, render_template
+from flaskbb.utils.requirements import IsAdmin
 from pluggy import HookimplMarker
 
-from flaskbb.extensions import db
-from flaskbb.utils.forms import SettingValueType
-from flaskbb.utils.helpers import render_template
-
-from . import models, views
 from .models import Rank
-
-__all__ = ("ranks_impl", "models")
+from .requirements import CanViewRanks
+from .settings import SETTINGS
+from .views import ranks, ranks_management
 
 ranks_impl = HookimplMarker("flaskbb")
-
-
-def render_rank(user):
-    if Rank.has_rank(user):
-        return render_template("rank_rank_in_post.html", rank=user.rank)
 
 
 @ranks_impl
@@ -25,145 +26,52 @@ def flaskbb_load_migrations():
 
 
 @ranks_impl
-def flaskbb_tpl_post_author_info_before(user, post):
-    return render_rank(user)
+def flaskbb_load_setting_groups():
+    return SETTINGS
 
 
 @ranks_impl
-def flaskbb_tpl_profile_sidebar_stats(user):
-    return render_rank(user)
-
-
-@ranks_impl
-def flaskbb_load_blueprints(app):
-    app.register_blueprint(views.ranks, url_prefix="/ranks")
-    app.register_blueprint(views.ranks_management, url_prefix="/management/ranks")
-
-
-@ranks_impl
-def flaskbb_additional_setup():
-    models._monkeypatch_user()
+def flaskbb_load_blueprints(app: Flask):
+    app.register_blueprint(ranks, url_prefix="/ranks")
+    app.register_blueprint(ranks_management, url_prefix="/management/ranks")
 
 
 @ranks_impl
 def flaskbb_tpl_navigation_after():
-    return render_template("rank_top_bar_navigation.html")
+    if Permission(CanViewRanks(), identity=real(current_user)):
+        return NavigationLink(endpoint="ranks.index", name=_("Ranks"), icon="fa fa-id-badge")
 
 
 @ranks_impl
-def flaskbb_event_post_save_after(post, is_new):
-    if not is_new:
-        return
+def flaskbb_tpl_post_author_info_before(user: User | None, post: Post):
+    rank = Rank.of(user)
+    if rank is not None:
+        return render_template("rank_rank_in_post.html", rank=rank)
 
+
+@ranks_impl
+def flaskbb_tpl_profile_stats(user: User):
+    rank = Rank.of(user)
+    if rank is not None:
+        return render_template("rank_profile_stats.html", rank=rank)
+
+
+@ranks_impl
+def flaskbb_tpl_admin_settings_menu(user: User | Guest):
+    if Permission(IsAdmin, identity=user):
+        return [("ranks_management.index", "Ranks", "fa fa-id-badge")]
+    return []
+
+
+@ranks_impl
+def flaskbb_event_post_save_after(post: Post, is_new: bool):
     user = post.user
-
-    # either guest or custom rank, don't do anything.
-    # careful, user might not have one yet
-    if user.is_anonymous or Rank.has_custom_rank(user):
+    if not is_new or user is None or Rank.has_custom_rank(user):
         return
 
-    if not Rank.has_rank(user):
-        rank = (
-            Rank.query.filter(
-                Rank.requirement <= user.post_count, Rank.requirement != None
-            )
-            .order_by(Rank.requirement.desc())
-            .first()
-        )
-        user.rank = rank
+    earned = Rank.earned_by(user.post_count)
+    if earned is None or earned is Rank.of(user):
+        return
 
-    else:
-
-        next_rank = (
-            Rank.query.filter(
-                Rank.requirement > user.rank.requirement,
-                Rank.requirement != None,
-                Rank.requirement <= user.post_count,
-            )
-            .order_by(Rank.requirement.asc())
-            .first()
-        )
-
-        if next_rank is not None:
-            user.rank = next_rank
-
+    user.rank = earned  # type: ignore[attr-defined]  # pyright: ignore
     db.session.commit()
-
-
-@ranks_impl
-def flaskbb_tpl_admin_settings_menu(user):
-    return [("ranks_management.index", "Ranks", "fa fa-id-badge")]
-
-
-SETTINGS = {
-    "hide_unapplied_ranks": {
-        "value": False,
-        "value_type": SettingValueType.boolean,
-        "name": "Hide Unapplied Ranks",
-        "description": "Hides ranks with no users attached in the forum overview. Replaces displays with placeholders.",  # noqa
-        "extra": {},
-    },
-    "rank_name_placeholder": {
-        "value": "???",
-        "value_type": SettingValueType.string,
-        "name": "Rank Name Placehold",
-        "description": "Placeholder when a rank name is hidden in the forum overview.",
-        "extra": {},
-    },
-    "rank_code_placeholder": {
-        "value": "???",
-        "value_type": SettingValueType.string,
-        "name": "Rank Display Placeholder",
-        "description": "Placeholder when a rank display is hidden in the forum overview. May be markdown.",  # noqa
-        "extra": {},
-    },
-    "rank_requirement_placeholder": {
-        "value": "???",
-        "value_type": SettingValueType.string,
-        "name": "Rank Requirement Placehold",
-        "description": "Placeholder when a rank requirement is hidden in the forum overview. Set to blank to show requirement.",  # noqa
-        "extra": {},
-    },
-    "hide_unapplied_custom_ranks": {
-        "value": True,
-        "value_type": SettingValueType.boolean,
-        "name": "Hide Unapplied Custom Ranks",
-        "description": "Hides custom ranks with no users attached in the forum overview. Replaces displays with placeholders.",  # noqa
-        "extra": {},
-    },
-    "rank_custom_name_placeholder": {
-        "value": "???",
-        "value_type": SettingValueType.string,
-        "name": "Rank Name Placehold",
-        "description": "Placeholder when a custom rank name is hidden in the forum overview. If not set, will use the regular name placeholder.",  # noqa
-        "extra": {},
-    },
-    "rank_custom_code_placeholder": {
-        "value": "???",
-        "value_type": SettingValueType.string,
-        "name": "Custom Rank Display Placeholder",
-        "description": "Placeholder when a custom rank display is hidden in the forum overview. May be markdown. If not set, will use the regular display placeholder.",  # noqa
-        "extra": {},
-    },
-    "show_users_for_ranks": {
-        "value": True,
-        "value_type": SettingValueType.boolean,
-        "name": "Show users with rank in forum overview",
-        "description": "",
-        "extra": {},
-    },
-    "how_many_users": {
-        "value": 5,
-        "value_type": SettingValueType.integer,
-        "name": "How many users to show",
-        "description": "If showing users on the forum overview, how many users to show.",
-        "extra": {},
-    },
-    "hide_from_guests": {
-        "value": True,
-        "value_type": SettingValueType.boolean,
-        "name": "Hide rank overview from guests",
-        "description": "Hides rank list and rank details from guests",
-        "extra": {},
-    },
-}
