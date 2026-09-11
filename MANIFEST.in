@@ -1,3 +1,0 @@
-graft src/flaskbb_ranks/templates
-
-global-exclude *.pyc __pycache__ .keep
