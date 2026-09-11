@@ -1,12 +1,13 @@
 {% extends "rank_management_base.html" %}
-{% block rank_title %}{% trans name=rank.rank_name %}Apply Rank {{ name }}{% endtrans %}{% endblock %}
+{% block rank_title %}{{ title }}{% endblock %}
 {% block rank_management %}
 {%- from theme('_macros/form.html') import render_field -%}
 
-<div class="px-2">{{ rank.rank_code|nonpost_markup }}</div>
 <form class="row p-2" role="form" method="post">
     {{ form.hidden_tag() }}
-    {{ render_field(form.username) }}
+    {{ render_field(form.rank_name) }}
+    {{ render_field(form.rank_code, div_class="col-sm-10 mb-3", rows=3) }}
+    {{ render_field(form.requirement) }}
     {{ render_field(form.submit) }}
 </form>
 {% endblock %}

@@ -1,5 +1,48 @@
-{% from theme("rank_macros.html") import render_admin_rank_block %}
-{% extends theme("rank_management_base.html") %}
+{% extends "rank_management_base.html" %}
 {% block rank_management %}
-{{ render_admin_rank_block(ranks, current_user) }}
+{%- from theme('_macros/form.html') import action_confirm -%}
+
+<div class="settings-content">
+    <div class="settings-meta row">
+        <div class="col-md-3 col-4 meta-item">{% trans %}Name{% endtrans %}</div>
+        <div class="col-md-4 col-4 meta-item">{% trans %}Display{% endtrans %}</div>
+        <div class="col-md-2 d-none d-md-block meta-item">{% trans %}Requirement{% endtrans %}</div>
+        <div class="col-md-3 col-4 meta-item">{% trans %}Actions{% endtrans %}</div>
+    </div>
+
+    {% for rank in ranks %}
+    <div class="row settings-row hover">
+        <div class="col-md-3 col-4">
+            <a href="{{ url_for('ranks.rank_detail', rank_id=rank.id) }}">{{ rank.rank_name }}</a>
+        </div>
+        <div class="col-md-4 col-4">{{ rank.rank_code|nonpost_markup }}</div>
+        <div class="col-md-2 d-none d-md-block">
+            {% if rank.is_custom() %}{% trans %}Custom{% endtrans %}{% else %}{{ rank.requirement }}{% endif %}
+        </div>
+        <div class="col-md-3 col-4">
+            <a href="{{ url_for('ranks_management.edit_rank', rank_id=rank.id) }}" class="btn btn-icon">
+                <span class="fas fa-edit text-primary" data-bs-toggle="tooltip" title="{% trans %}Edit{% endtrans %}"></span>
+            </a>
+            {% if rank.is_custom() %}
+            <a href="{{ url_for('ranks_management.apply_rank', rank_id=rank.id) }}" class="btn btn-icon">
+                <span class="fas fa-user-tag text-success" data-bs-toggle="tooltip" title="{% trans %}Apply{% endtrans %}"></span>
+            </a>
+            {% endif %}
+            {{
+                action_confirm(
+                    id="delete-" ~ rank.id,
+                    url=url_for('ranks_management.delete_rank', rank_id=rank.id),
+                    title=_("Delete"),
+                    icon="far fa-trash-alt text-danger"
+                )
+            }}
+        </div>
+    </div>
+    {% else %}
+    <div class="row settings-row">
+        <div class="col-12">{% trans %}No ranks found.{% endtrans %}</div>
+    </div>
+    {% endfor %}
+</div>
+{% include theme('_partials/confirm_dialog.html') %}
 {% endblock %}

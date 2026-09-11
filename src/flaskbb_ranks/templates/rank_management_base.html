@@ -1,37 +1,27 @@
 {% set page_title = _("Ranks") %}
+{% set active = "ranks_management.index" %}
+
 {% extends theme("management/management_layout.html") %}
-{% from theme('macros.html') import navlink with context %}
 
 {% block breadcrumb %}
 <ol class="breadcrumb flaskbb-breadcrumb">
-    <li><a href="{{ url_for('forum.index') }}">{% trans %}Forum{% endtrans %}</a></li>
-    <li><a href="{{ url_for('management.overview') }}">{% trans %}Management{% endtrans %}</a></li>
-    <li class="active">{% trans %}Manage Ranks{% endtrans %}</li>
+    <li class="breadcrumb-item"><a href="{{ url_for('forum.index') }}">{% trans %}Forum{% endtrans %}</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('management.overview') }}">{% trans %}Management{% endtrans %}</a></li>
+    <li class="breadcrumb-item active">{% trans %}Manage Ranks{% endtrans %}</li>
 </ol>
 {% endblock %}
 
 {% block management_content %}
-
-<div class="col-md-3 settings-col">
-    <div class="nav-sidebar">
-        <ul class="nav">
-            {{ navlink('ranks_management.index', _('Manage Ranks')) }}
-            {% if current_user|is_admin %}
-            {{ navlink('ranks_management.add_rank', _("Add Rank")) }}
-            {% endif %}
-        </ul>
-    </div>
-</div>
-
-<div class="col-md-9 settings-col with-left-border">
-    <div class="panel settings-panel">
-        <div class="panel-heading settings-head">
-            <span class="fa fa-id-badge"></span> {% trans %}Ranks{% endtrans %}
+<div class="col-md-12 settings-col">
+    <div class="card settings">
+        <div class="card-header settings-header d-flex align-items-center">
+            <span><span class="fa fa-id-badge"></span> {% block rank_title %}{% trans %}Ranks{% endtrans %}{% endblock %}</span>
+            <a class="btn btn-sm btn-success ms-auto" href="{{ url_for('ranks_management.add_rank') }}">
+                <span class="fa fa-plus"></span> {% trans %}Add Rank{% endtrans %}
+            </a>
         </div>
-        <div class="panel-body settings-body">
-            <div class="settings-content">
-                {% block rank_management %}{% endblock %}
-            </div>
+        <div class="card-body settings-body">
+            {% block rank_management %}{% endblock %}
         </div>
     </div>
 </div>

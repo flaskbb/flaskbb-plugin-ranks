@@ -1,121 +1,56 @@
-{% macro render_rank(rank) %}
-{{ render_rank_code(rank.rank_code, rank_name) }}
-{% endmacro %}
+{% macro rank_users(rank, limit=None) -%}
+{%- set users = rank.users | list -%}
+{%- for user in (users if limit is none else users[:limit]) -%}
+<a href="{{ user.url }}">{{ user.username }}</a>{% if not loop.last %}, {% endif %}
+{%- endfor -%}
+{%- if limit is not none and users | length > limit %}, <a href="{{ url_for('ranks.rank_detail', rank_id=rank.id) }}">{% trans %}more{% endtrans %}</a>{% endif -%}
+{%- endmacro %}
 
 
-{% macro render_rank_code(rank_code, rank_name=None) %}
-<div class="rank{% if rank_name %} {{ rank_name|replace(" ", "-") }}{% endif %}" style="text-align: center; margin: 10px 0;">
-    {{ rank_code | nonpost_markup }}
-</div>
-{% endmacro %}
-
-{% macro render_rank_users(rank, how_many=None) %}
-    <ul class="rank-users list-inline">
-        {% if how_many is none %}
-        {% for user in rank.users %}
-        <li><a href="{{ user.url }}">{{ user.username }}</a></li>
-        {% endfor %}
-        {% else %}
-        {% for user in rank.users[:how_many] %}
-        <li><a href="{{ user.url }}">{{ user.username }}</a></li>
-        {% endfor %}
-        {% endif %}
-    </ul>
-{% endmacro %}
-
-{% macro render_placeholder_rank_row(name, code, requirement) %}
-<div class="col-md-3 col-sm-3 col-xs-5">{{ render_rank_code(code) }}</div>
-<div class="col-md-3 col-sm-3 col-xs-5">{{ name }}</div>
-{% if requirement is not none %}
-<div class="col-md-2 col-sm-2 hidden-xs">{{ requirement}}</div>
-{% endif %}
-<div class="col-md-2 col-sm-2 hidden-xs">{# users #}</div>
-{% endmacro %}
-
-{% macro render_actual_rank_row(rank, how_many_users=None, force_req=False) %}
-<div class="col-md-3 col-sm-3 col-xs-5">{{ render_rank(rank) }}</div>
-<div class="col-md-3 col-sm-3 col-xs-5">
-    <a href="{{ url_for("ranks.rank_detail", rank_id=rank.id) }}">{{ rank.rank_name }}</a>
-</div>
-{% if force_req or rank.requirement is not none %}
-{% if rank.requirement is none %}
-<div class="col-md-2 col-sm-2 hidden-xs">{% trans %}Custom{% endtrans %}</div>
-{% else %}
-<div class="col-md-2 col-sm-2 hidden-xs">{{ rank.requirement }}</div>
-{% endif %}
-{% endif %}
-{% if how_many_users != 0 and rank.users | length %}
-<div class="col-md-2 col-sm-2 hidden-xs users">
-{{ render_rank_users(rank, how_many_users) }}
-</div>
-{% endif %}
-{% endmacro %}
-
-
-{% macro render_rank_block(title, ranks, settings) %}
-<div class="panel page-panel">
-    <div class="panel-heading page-head">{{ title }}</div>
-    <div class="panel-body page-body">
-        <div class="page-meta">
-            <div class="col-md-3 col-sm-3 col-xs-5 meta-item">{% trans %}Display{% endtrans %}</div>
-            <div class="col-md-3 col-sm-3 meta-item">{% trans %}Name{% endtrans %}</div>
-            {% if settings["show_requirements"] %}
-            <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Requirement{% endtrans %}</div>
+{% macro rank_block(title, ranks, hide_unapplied, name_placeholder, code_placeholder, show_requirement) %}
+{%- set show_users = rank_setting("SHOW_USERS") -%}
+<div class="card page mb-3">
+    <div class="card-header page-header">{{ title }}</div>
+    <div class="card-body page-body">
+        <div class="row m-0 page-meta">
+            <div class="col-md-3 col-6 ps-3 meta-item">{% trans %}Name{% endtrans %}</div>
+            <div class="col-md-3 col-6 meta-item">{% trans %}Rank{% endtrans %}</div>
+            {% if show_requirement %}
+            <div class="col-md-2 d-none d-md-block meta-item">{% trans %}Posts{% endtrans %}</div>
             {% endif %}
-            <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Users{% endtrans %}</div>
+            {% if show_users %}
+            <div class="col d-none d-md-block meta-item">{% trans %}Users{% endtrans %}</div>
+            {% endif %}
         </div>
         {% for rank in ranks %}
-        <div class="row page-row hover clearfix">
-            {% if settings["hide"] and not rank.users %}
-            {{ render_placeholder_rank_row(settings["name"], settings["code"], None) }}
-            {% else %}
-            {{ render_actual_rank_row(rank, settings["how_many_users"] if settings["show_users"] else 0) }}
+        <div class="row page-row hover">
+            {% if hide_unapplied and not rank.users %}
+            <div class="col-md-3 col-6 ps-3">{{ name_placeholder }}</div>
+            <div class="col-md-3 col-6">{{ code_placeholder|nonpost_markup }}</div>
+            {% if show_requirement %}
+            <div class="col-md-2 d-none d-md-block">{{ rank_setting("REQUIREMENT_PLACEHOLDER") or rank.requirement }}</div>
             {% endif %}
+            {% if show_users %}
+            <div class="col d-none d-md-block"></div>
+            {% endif %}
+            {% else %}
+            <div class="col-md-3 col-6 ps-3">
+                <a href="{{ url_for('ranks.rank_detail', rank_id=rank.id) }}">{{ rank.rank_name }}</a>
+            </div>
+            <div class="col-md-3 col-6">{{ rank.rank_code|nonpost_markup }}</div>
+            {% if show_requirement %}
+            <div class="col-md-2 d-none d-md-block">{{ rank.requirement }}</div>
+            {% endif %}
+            {% if show_users %}
+            <div class="col d-none d-md-block">{{ rank_users(rank, rank_setting("HOW_MANY_USERS")) }}</div>
+            {% endif %}
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="row page-row">
+            <div class="col-12 ps-3">{% trans %}No ranks found.{% endtrans %}</div>
         </div>
         {% endfor %}
     </div>
-</div>
-{% endmacro %}
-
-
-{% macro render_rank_admin_row(rank, user) %}
-
-{{ render_actual_rank_row(rank, 0, True) }}
-{% if current_user|is_admin %}
-<div class="col-md-1"><a href="{{ url_for("ranks_management.edit_rank", id=rank.id) }}">{% trans %}Edit{% endtrans %}</a></div>
-<div class="col-md-1"><a href="{{ url_for("ranks_management.delete_rank", id=rank.id) }}">{% trans %}Delete{% endtrans %}</a></div>
-    {% if rank.requirement is none %}
-<div class="col-md-1"><a href="{{ url_for("ranks_management.apply_rank", id=rank.id) }}">{% trans %}Apply{% endtrans %}</a></div>
-    {% endif %}
-{% endif %}
-{% endmacro %}
-
-
-{% macro render_admin_rank_block(ranks, user) %}
-<div class="settings-meta row">
-    <div class="col-md-3 meta-item">{% trans %}Display{% endtrans %}</div>
-    <div class="col-md-3 meta-item">{% trans %}Name{% endtrans %}</div>
-    <div class="col-md-3 meta-item">{% trans %}Requirement{% endtrans %}</div>
-    {% if user | is_admin %}
-    <div class="col-md-3 col-sm-3 meta-item">{% trans %}Actions{% endtrans %}</div>
-    {% endif %}
-</div>
-
-{% for rank in ranks %}
-<div class="row settings-row hover clearfix">
-    {{ render_rank_admin_row(rank, user) }}
-</div>
-{% endfor %}
-{% endmacro %}
-
-{% macro render_single_rank_block(rank) %}
-<div class="settings-meta row">
-    <div class="col-md-3 col-sm-3 col-xs-5 meta-item">{% trans %}Display{% endtrans %}</div>
-    <div class="col-md-3 col-sm-3 meta-item">{% trans %}Name{% endtrans %}</div>
-    <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Requirement{% endtrans %}</div>
-    <div class="col-md-2 col-sm-2 hidden-xs meta-item">{% trans %}Users{% endtrans %}</div>
-</div>
-<div class="row settings-row clearfix">
-    {{ render_actual_rank_row(rank, force_req=True) }}
 </div>
 {% endmacro %}

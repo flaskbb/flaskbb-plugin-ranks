@@ -1,32 +1,27 @@
-from flask_allows import Or, Permission, Requirement
-
+from flask_allows2 import Or, Permission, Requirement
+from flaskbb.user.models import Guest, User
 from flaskbb.utils.requirements import IsAtleastModerator
 
-
-class CanViewRankOverview(Requirement):
-    def __init__(self, settings):
-        self._settings = settings
-
-    def fulfill(self, user):
-        return user.is_authenticated or not self._settings.get("hide_from_guests")
+from .models import Rank
+from .settings import rank_setting
 
 
-class UserCanViewRankDetails(Requirement):
-    def __init__(self, rank, settings):
-        self._rank = rank
-        self._settings = settings
+class CanViewRanks(Requirement):
+    def fulfill(self, user: User | Guest):
+        return user.is_authenticated or not rank_setting("HIDE_FROM_GUESTS")
 
-    def fulfill(self, user):
-        if len(self._rank.users):
+
+class RankIsVisible(Requirement):
+    def __init__(self, rank: Rank):
+        self.rank = rank
+
+    def fulfill(self, user: User | Guest):
+        if self.rank.users:
             return True
-
-        if self._rank.is_custom():
-            return not self._settings.get("hide_custom")
-
-        return not self._settings.get("hide")
+        if self.rank.is_custom():
+            return not rank_setting("HIDE_UNAPPLIED_CUSTOM_RANKS")
+        return not rank_setting("HIDE_UNAPPLIED_RANKS")
 
 
-def can_view_rank_details(rank, settings, user):
-    return Permission(
-        Or(IsAtleastModerator, UserCanViewRankDetails(rank, settings)), identity=user
-    )
+def can_view_rank_details(rank: Rank, user: User | Guest):
+    return Permission(Or(IsAtleastModerator, RankIsVisible(rank)), identity=user)
