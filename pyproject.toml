@@ -8,6 +8,9 @@ requires-python = ">=3.12"
 authors = [
   {name = "Alec Nikolas Reiter"},
 ]
+maintainers = [
+  {name = "Peter Justin", email = "peter.justin@outlook.com"}
+]
 description = "Adds user ranks to FlaskBB."
 license = "MIT"
 keywords = ["flaskbb", "plugin", "ranks"]
