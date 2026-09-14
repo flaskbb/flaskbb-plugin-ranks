@@ -1,6 +1,6 @@
 [project]
 name = "flaskbb-plugin-ranks"
-version = "1.0.0.dev0"
+version = "1.0.0"
 dependencies = [
     "FlaskBB>=3.0.0",
 ]
