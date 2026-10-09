@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, g
 from flask_allows2 import Permission
 from flask_babelplus import gettext as _
 from flask_login import current_user
@@ -46,7 +46,15 @@ def flaskbb_tpl_navigation_after():
 def flaskbb_tpl_post_author_info_before(user: User | None, post: Post):
     rank = Rank.of(user)
     if rank is not None:
-        return render_template("rank_rank_in_post.html", rank=rank)
+        return rank_in_post(rank)
+
+
+def rank_in_post(rank: Rank) -> str:
+    """Renders a rank once per request, however many posts on the page carry it."""
+    rendered = g.setdefault("_ranks_in_post", {})
+    if rank.id not in rendered:
+        rendered[rank.id] = render_template("rank_rank_in_post.html", rank=rank)
+    return rendered[rank.id]
 
 
 @ranks_impl

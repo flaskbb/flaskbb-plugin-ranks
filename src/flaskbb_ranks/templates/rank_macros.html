@@ -1,9 +1,14 @@
-{% macro rank_users(rank, limit=None) -%}
-{%- set users = rank.users | list -%}
-{%- for user in (users if limit is none else users[:limit]) -%}
-<a href="{{ user.url }}">{{ user.username }}</a>{% if not loop.last %}, {% endif %}
+{% macro user_links(usernames) -%}
+{%- for username in usernames -%}
+<a href="{{ url_for('user.profile', username=username) }}">{{ username }}</a>{% if not loop.last %}, {% endif %}
 {%- endfor -%}
-{%- if limit is not none and users | length > limit %}, <a href="{{ url_for('ranks.rank_detail', rank_id=rank.id) }}">{% trans %}more{% endtrans %}</a>{% endif -%}
+{%- endmacro %}
+
+
+{% macro rank_users(rank) -%}
+{%- set usernames = first_usernames.get(rank.id, []) -%}
+{{ user_links(usernames) }}
+{%- if user_counts.get(rank.id, 0) > usernames | length %}, <a href="{{ url_for('ranks.rank_detail', rank_id=rank.id) }}">{% trans %}more{% endtrans %}</a>{% endif -%}
 {%- endmacro %}
 
 
@@ -24,7 +29,7 @@
         </div>
         {% for rank in ranks %}
         <div class="row page-row hover">
-            {% if hide_unapplied and not rank.users %}
+            {% if hide_unapplied and not user_counts.get(rank.id) %}
             <div class="col-md-3 col-6 ps-3">{{ name_placeholder }}</div>
             <div class="col-md-3 col-6">{{ code_placeholder|nonpost_markup }}</div>
             {% if show_requirement %}
@@ -42,7 +47,7 @@
             <div class="col-md-2 d-none d-md-block">{{ rank.requirement }}</div>
             {% endif %}
             {% if show_users %}
-            <div class="col d-none d-md-block">{{ rank_users(rank, rank_setting("HOW_MANY_USERS")) }}</div>
+            <div class="col d-none d-md-block">{{ rank_users(rank) }}</div>
             {% endif %}
             {% endif %}
         </div>

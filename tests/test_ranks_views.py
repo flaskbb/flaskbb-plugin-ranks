@@ -4,7 +4,10 @@ from flask_login.test_client import FlaskLoginClient
 from flaskbb.extensions import db
 from flaskbb.forum.models import Post
 from flaskbb.settings import Setting
+from flaskbb.user.models import User
+from sqlalchemy import event
 
+import flaskbb_ranks
 from flaskbb_ranks import flaskbb_event_post_save_after
 from flaskbb_ranks.models import Rank
 from flaskbb_ranks.settings import SETTINGS
@@ -21,10 +24,25 @@ def client(application, default_settings, default_groups, monkeypatch):
         # requests reuse the package-wide app context, so flask-login's cached
         # g._login_user would otherwise leak between clients and tests
         g.pop("_login_user", None)
+        g.pop("_ranks_in_post", None)
         return application.test_client(user=user)
 
     yield make
     g.pop("_login_user", None)
+    g.pop("_ranks_in_post", None)
+
+
+@pytest.fixture
+def queries():
+    """Records every SQL statement, so tests can count the queries a request makes."""
+    statements = []
+
+    def record(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    event.listen(db.engine, "before_cursor_execute", record)
+    yield statements
+    event.remove(db.engine, "before_cursor_execute", record)
 
 
 @pytest.fixture
@@ -49,6 +67,26 @@ def _rank(name, requirement=None):
 def _give(user, rank):
     user.rank = rank
     db.session.commit()
+
+
+def _user(default_groups, name):
+    return User(
+        username=name,
+        email=f"{name}@example.org",
+        password="test",
+        primary_group=default_groups[3],
+        activated=True,
+    ).save()
+
+
+def _measure(client, url, queries):
+    """Rank queries of a repeat visit, with the session emptied like at the start of a request."""
+    client.get(url)
+    db.session.expire_all()
+    queries.clear()
+    resp = client.get(url)
+    assert resp.status_code == 200
+    return resp, sum(1 for statement in queries if "rank" in statement)
 
 
 def test_new_post_gives_highest_earned_rank(topic, user):
@@ -86,6 +124,53 @@ def test_overview_lists_ranks_users_and_nav_link(client, user):
     assert b"<strong>Hero</strong>" in resp.data
     assert f">{user.username}</a>".encode() in resp.data
     assert b'href="/ranks/"' in resp.data
+
+
+def test_overview_shows_the_first_users_and_links_to_the_rest(client, user, default_groups):
+    hero = _rank("Hero")
+    _give(user, hero)
+    for i in range(6):
+        _give(_user(default_groups, f"holder{i}"), hero)
+
+    resp = client(user).get("/ranks/")
+
+    assert f">{user.username}</a>".encode() in resp.data
+    assert b">holder3</a>" in resp.data
+    assert b">holder4</a>" not in resp.data
+    assert f'href="/ranks/{hero.id}">more</a>'.encode() in resp.data
+
+
+def test_overview_without_shown_users_still_hides_unapplied_ranks(
+    client, user, default_groups, rank_settings
+):
+    _give(_user(default_groups, "holder"), _rank("Hero"))
+    _rank("Ghost")
+    rank_settings(SHOW_USERS=False)
+
+    resp = client(user).get("/ranks/")
+
+    assert b"<strong>Hero</strong>" in resp.data
+    assert b">holder</a>" not in resp.data
+    assert b"<strong>Ghost</strong>" not in resp.data
+
+
+def test_rank_pages_query_count_does_not_grow_with_users(client, user, default_groups, queries):
+    hero = _rank("Hero")
+    _give(user, hero)
+    viewer = client(user)
+    _, overview_queries = _measure(viewer, "/ranks/", queries)
+    _, detail_queries = _measure(viewer, f"/ranks/{hero.id}", queries)
+
+    for i in range(12):
+        _give(_user(default_groups, f"holder{i}"), hero)
+
+    overview, overview_queries_now = _measure(viewer, "/ranks/", queries)
+    detail, detail_queries_now = _measure(viewer, f"/ranks/{hero.id}", queries)
+
+    assert overview_queries_now == overview_queries
+    assert detail_queries_now == detail_queries
+    assert b">holder11</a>" not in overview.data
+    assert b">holder11</a>" in detail.data
 
 
 def test_overview_hides_unapplied_custom_ranks(client, user):
@@ -131,6 +216,46 @@ def test_topic_and_profile_show_rank(application, client, topic, user):
 
     assert b"<strong>Hero</strong>" in client().get(topic_url).data
     assert b"<strong>Hero</strong>" in client().get(profile_url).data
+
+
+def test_topic_renders_each_rank_once(application, client, topic, user, default_groups, mocker):
+    hero = _rank("Hero")
+    _give(user, hero)
+    for i in range(4):
+        holder = _user(default_groups, f"holder{i}")
+        _give(holder, hero)
+        Post(content=f"reply {i}").save(user=holder, topic=topic)
+    with application.test_request_context():
+        topic_url = topic.url
+    render = mocker.spy(flaskbb_ranks, "render_template")
+
+    resp = client(user).get(topic_url)
+
+    assert resp.data.count(b"<strong>Hero</strong>") == 5
+    assert render.call_count == 1
+
+
+def test_topic_query_count_does_not_grow_with_posts(
+    application, client, topic, user, default_groups, queries
+):
+    hero = _rank("Hero")
+    _give(user, hero)
+    with application.test_request_context():
+        topic_url = topic.url
+    viewer = client(user)
+
+    def reply(name):
+        holder = _user(default_groups, name)
+        _give(holder, hero)
+        Post(content=f"reply by {name}").save(user=holder, topic=topic)
+
+    reply("holder0")
+    _, with_two_posts = _measure(viewer, topic_url, queries)
+    for i in range(1, 5):
+        reply(f"holder{i}")
+    _, with_six_posts = _measure(viewer, topic_url, queries)
+
+    assert with_six_posts == with_two_posts
 
 
 def test_management_redirects_non_admins(client, user):

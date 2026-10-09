@@ -35,9 +35,17 @@ def inject_rank_setting():
 
 @ranks.route("/")
 def index():
-    all_ranks = db.session.execute(select(Rank).order_by(Rank.requirement.asc(), Rank.id)).scalars()
+    all_ranks = db.session.scalars(select(Rank).order_by(Rank.requirement.asc(), Rank.id))
+    first_usernames = {}
+    if rank_setting("SHOW_USERS"):
+        first_usernames = Rank.first_usernames(rank_setting("HOW_MANY_USERS"))
 
-    return render_template("rank_forum_overview.html", ranks=Rank.partition_ranks(all_ranks))
+    return render_template(
+        "rank_forum_overview.html",
+        ranks=Rank.partition_ranks(all_ranks),
+        user_counts=Rank.user_counts(),
+        first_usernames=first_usernames,
+    )
 
 
 @ranks.route("/<int:rank_id>")
@@ -45,4 +53,5 @@ def rank_detail(rank_id: int):
     rank = Rank.get_or_404(Rank.id == rank_id)
     if not can_view_rank_details(rank, real(current_user)):
         abort(404)
-    return render_template("rank_forum_detail.html", rank=rank)
+    usernames = rank.usernames() if rank_setting("SHOW_USERS") else []
+    return render_template("rank_forum_detail.html", rank=rank, usernames=usernames)

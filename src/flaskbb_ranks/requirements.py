@@ -16,7 +16,7 @@ class RankIsVisible(Requirement):
         self.rank = rank
 
     def fulfill(self, user: User | Guest):
-        if self.rank.users:
+        if self.rank.has_users():
             return True
         if self.rank.is_custom():
             return not rank_setting("HIDE_UNAPPLIED_CUSTOM_RANKS")

@@ -2,7 +2,7 @@
 
 {% extends theme("layout.html") %}
 {% block content %}
-{%- from "rank_macros.html" import rank_users with context -%}
+{%- from "rank_macros.html" import user_links -%}
 
 <div class="page-view">
     <ol class="breadcrumb flaskbb-breadcrumb bg-light">
@@ -27,7 +27,7 @@
                     {% if rank.is_custom() %}{% trans %}Custom{% endtrans %}{% else %}{{ rank.requirement }}{% endif %}
                 </div>
                 {% if rank_setting("SHOW_USERS") %}
-                <div class="col-md-6 col-12 ps-3 ps-md-2">{{ rank_users(rank) }}</div>
+                <div class="col-md-6 col-12 ps-3 ps-md-2">{{ user_links(usernames) }}</div>
                 {% endif %}
             </div>
         </div>

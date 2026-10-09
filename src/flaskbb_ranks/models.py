@@ -1,7 +1,9 @@
+from collections import defaultdict
+
 from flaskbb.extensions import db
 from flaskbb.user.models import Guest, User
 from flaskbb.utils.database import BaseModel
-from sqlalchemy import ForeignKey, select, String
+from sqlalchemy import exists, ForeignKey, func, select, String
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -45,6 +47,48 @@ class Rank(BaseModel):
             .limit(1)
         ).scalar()
 
+    def has_users(self) -> bool:
+        return bool(db.session.scalar(select(exists().where(UserRank.rank_id == self.id))))
+
+    def usernames(self) -> list[str]:
+        return list(
+            db.session.scalars(
+                select(User.username)
+                .join(UserRank, UserRank.user_id == User.id)
+                .where(UserRank.rank_id == self.id)
+                .order_by(UserRank.id)
+            )
+        )
+
+    @staticmethod
+    def user_counts() -> dict[int, int]:
+        rows = db.session.execute(
+            select(UserRank.rank_id, func.count())
+            .where(UserRank.rank_id.is_not(None))
+            .group_by(UserRank.rank_id)
+        )
+        return {rank_id: count for rank_id, count in rows.tuples() if rank_id is not None}
+
+    @staticmethod
+    def first_usernames(limit: int) -> dict[int, list[str]]:
+        """The first ``limit`` usernames holding each rank, keyed by rank id."""
+        position = func.row_number().over(partition_by=UserRank.rank_id, order_by=UserRank.id)
+        holders = (
+            select(UserRank.rank_id, UserRank.user_id, position.label("position"))
+            .where(UserRank.rank_id.is_not(None))
+            .subquery()
+        )
+        rows = db.session.execute(
+            select(holders.c.rank_id, User.username)
+            .join(User, User.id == holders.c.user_id)
+            .where(holders.c.position <= limit)
+            .order_by(holders.c.rank_id, holders.c.position)
+        )
+        usernames: dict[int, list[str]] = defaultdict(list)
+        for rank_id, username in rows.tuples():
+            usernames[rank_id].append(username)
+        return dict(usernames)
+
     def __repr__(self):
         return f"<Rank name={self.rank_name} requirement={self.requirement}>"
 
@@ -76,9 +120,10 @@ class UserRank(BaseModel):
             "user_rank", uselist=False, lazy="selectin", cascade="all, delete-orphan"
         ),
     )
+    # joined so the selectin query above brings the rank along instead of a second query
     rank: Mapped[Rank | None] = relationship(
         Rank,
-        lazy="selectin",
+        lazy="joined",
         backref=db.backref("user_ranks", cascade="all, delete-orphan"),
     )
 

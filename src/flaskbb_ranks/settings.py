@@ -1,3 +1,5 @@
+from typing import Any
+
 from flaskbb.settings import BoolSetting, flaskbb_config, IntSetting, SettingGroup, StringSetting
 
 SETTINGS = SettingGroup(
@@ -88,5 +90,5 @@ SETTINGS = SettingGroup(
 _DEFAULTS = {setting.key: setting.value for setting in SETTINGS.settings}
 
 
-def rank_setting(key: str):
+def rank_setting(key: str) -> Any:
     return flaskbb_config.get(f"{SETTINGS.key.upper()}_{key}", _DEFAULTS[key])
