@@ -6,7 +6,7 @@ Here you can see the full list of changes between each release.
 Version 1.0.3
 -------------
 
-Unreleased
+Released on October 14th, 2026
 
 * Fix a deprecation warning with SQLAlchemy 2.1
 
