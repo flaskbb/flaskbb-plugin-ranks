@@ -67,7 +67,7 @@ class Rank(BaseModel):
             .where(UserRank.rank_id.is_not(None))
             .group_by(UserRank.rank_id)
         )
-        return {rank_id: count for rank_id, count in rows.tuples() if rank_id is not None}
+        return {rank_id: count for rank_id, count in rows if rank_id is not None}
 
     @staticmethod
     def first_usernames(limit: int) -> dict[int, list[str]]:
@@ -85,7 +85,7 @@ class Rank(BaseModel):
             .order_by(holders.c.rank_id, holders.c.position)
         )
         usernames: dict[int, list[str]] = defaultdict(list)
-        for rank_id, username in rows.tuples():
+        for rank_id, username in rows:
             usernames[rank_id].append(username)
         return dict(usernames)
 

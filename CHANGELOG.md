@@ -3,6 +3,14 @@ Changelog
 
 Here you can see the full list of changes between each release.
 
+Version 1.0.3
+-------------
+
+Unreleased
+
+* Fix a deprecation warning with SQLAlchemy 2.1
+
+
 Version 1.0.2
 -------------
 
